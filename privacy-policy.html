@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — No Panic</title>
+  <meta name="description" content="How the No Panic app handles information. No account, no ads, no analytics, no tracking.">
+  <link rel="canonical" href="https://denid88.github.io/nopanic-app/privacy-policy.html">
+  <link rel="icon" type="image/png" href="./assets/favicon.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="./styles/main.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="site-header__brand" href="./index.html">
+        <img src="./assets/logo.png" alt="">
+        <span>No Panic</span>
+      </a>
+      <nav class="site-header__lang" aria-label="Language">
+        <span class="is-active" aria-current="true">EN</span>
+        <span aria-hidden="true">|</span>
+        <a href="./privacy-policy.uk.html" hreflang="uk">UK</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="legal">
+    <article class="prose">
+      <h1>Privacy Policy — No Panic</h1>
+      <p><strong>Effective date:</strong> <em>To be set before store submission</em><br>
+      <strong>Last updated:</strong> 2026-04-17</p>
+      <p><strong>Publisher:</strong> No Panic Labs (temporary working name until legal entity is finalized), Ukraine.<br>
+      <strong>Support contact:</strong> <a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a> (also the sole channel for privacy / GDPR requests).<br>
+      <strong>Canonical URL:</strong> <a href="https://denid88.github.io/nopanic-app/privacy-policy.html">https://denid88.github.io/nopanic-app/privacy-policy.html</a></p>
+      <p>This Privacy Policy explains how No Panic Labs ("we", "us", "our") handles information in connection with the <strong>No Panic</strong> mobile application (the "App"). By using the App you acknowledge that you have read this Policy.</p>
+      <p>We designed No Panic to be <strong>privacy-respecting by default</strong>:</p>
+      <ul>
+        <li><strong>No account, no sign-up, no login.</strong> The App is fully anonymous.</li>
+        <li><strong>No advertising, no analytics SDK, no crash-reporting SDK, no tracking.</strong></li>
+        <li><strong>Journal entries and favorites stay on your device.</strong> They are never uploaded to us.</li>
+        <li>The only external service the App talks to is the subscription provider (RevenueCat + Apple / Google) when you interact with the paywall, and Google Fonts when loading typography.</li>
+      </ul>
+      <p>Read below for the details.</p>
+
+      <hr>
+
+      <h2>1. Who is the controller</h2>
+      <p>The data controller is <strong>No Panic Labs</strong>, established in <strong>Ukraine</strong>. Contact: <strong><a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a></strong>. We have not appointed a formal Data Protection Officer — all privacy requests go to the same email.</p>
+
+      <h2>2. What the App stores on your device</h2>
+      <p>The App keeps the following information <strong>locally on your device only</strong>. We do not receive or read this data.</p>
+      <table>
+        <thead>
+          <tr><th scope="col">Storage</th><th scope="col">What it contains</th><th scope="col">Why</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>SharedPreferences</code> (iOS <code>NSUserDefaults</code> / Android <code>SharedPreferences</code>) — unencrypted</td>
+            <td><code>onboarding_completed</code> flag</td>
+            <td>Skip onboarding after first run.</td>
+          </tr>
+          <tr>
+            <td><code>SharedPreferences</code></td>
+            <td><code>pro_entitlement_cache</code> — a JSON snapshot of your most recent Pro entitlement (active flag, expiry date, renewal flag, product ID, trial flag)</td>
+            <td>Show correct lock state at cold start, including offline.</td>
+          </tr>
+          <tr>
+            <td><code>SharedPreferences</code></td>
+            <td><code>affirmation_favorites</code> — IDs of affirmations you hearted</td>
+            <td>Let you revisit your favorites.</td>
+          </tr>
+          <tr>
+            <td><code>SharedPreferences</code></td>
+            <td><code>affirmation_of_day_id</code> + <code>affirmation_of_day_date</code></td>
+            <td>Show a stable "affirmation of the day".</td>
+          </tr>
+          <tr>
+            <td>Local SQLite database <code>nopanic_journal.db</code>, table <code>journal_entries</code></td>
+            <td>Journal body text, optional mood emoji, created/updated timestamps, local auto-incremented ID</td>
+            <td>Power the Journaling feature.</td>
+          </tr>
+          <tr>
+            <td>OS-managed audio cache</td>
+            <td>Cached playback state for bundled audio files</td>
+            <td>Smooth playback of exercises.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>All of the above is removed when you uninstall the App or use your operating system's "Clear data" / "Offload app" action.</p>
+      <p><strong>The App does not</strong> collect or store:</p>
+      <ul>
+        <li>your name, email address, phone number, device ID, advertising ID (IDFA/GAID), or precise location;</li>
+        <li>contacts, calendars, photos, microphone or camera input;</li>
+        <li>browsing or usage analytics;</li>
+        <li>push tokens (the App has no push notifications).</li>
+      </ul>
+
+      <h2>3. Third parties that may process data about you</h2>
+      <p>Using the App triggers a minimal, specific set of third-party interactions. We list them exhaustively.</p>
+
+      <h3>3.1 Apple (App Store) and Google (Google Play)</h3>
+      <ul>
+        <li><strong>What they process:</strong> your purchase and subscription transactions, transaction receipts, your store account (Apple ID / Google account), and whatever telemetry your device platform collects at the OS level.</li>
+        <li><strong>Why:</strong> billing, subscription management, refunds.</li>
+        <li><strong>Where:</strong> governed by Apple's and Google's own privacy policies.</li>
+        <li><strong>Our visibility:</strong> we can see anonymous purchase outcomes via RevenueCat (see below). We do not see your name, email, or payment details.</li>
+      </ul>
+
+      <h3>3.2 RevenueCat</h3>
+      <ul>
+        <li><strong>What they process:</strong> a pseudonymous <strong>RevenueCat App User ID</strong> that the SDK generates on your device, your purchase events, subscription status, platform and country, and the RevenueCat API key in use. See RevenueCat's privacy policy for the complete picture.</li>
+        <li><strong>Why:</strong> we use RevenueCat to configure subscription products, check whether you currently have the <code>pro</code> entitlement, and handle purchase / restore flows, without building our own receipt-validation backend.</li>
+        <li><strong>When the App contacts RevenueCat:</strong> at app start (to fetch the current entitlement and cache it), when you open the paywall (to load product offerings), and when you tap Subscribe or Restore.</li>
+        <li><strong>Where:</strong> RevenueCat's servers. RevenueCat's infrastructure is primarily in the United States; transfers are covered by their standard data-protection terms.</li>
+      </ul>
+
+      <h3>3.3 Google Fonts (runtime font fetch)</h3>
+      <ul>
+        <li><strong>What they process:</strong> a standard HTTP request to Google's font CDN for the "Quicksand" typeface, including your IP address and basic request metadata.</li>
+        <li><strong>Why:</strong> the App uses the <code>google_fonts</code> package, which fetches the font file on first use. Once fetched, it is cached locally by the package.</li>
+        <li><strong>Note:</strong> if you disable this, some text will fall back to system fonts. We may ship the font as a bundled asset in a future version to remove this external call.</li>
+      </ul>
+
+      <h3>3.4 Services that <strong>do not</strong> run</h3>
+      <p>For transparency, the App does <strong>not</strong> include:</p>
+      <ul>
+        <li>Firebase, Google Analytics, Amplitude, Mixpanel, PostHog, or any other analytics SDK;</li>
+        <li>Sentry, Crashlytics, Bugsnag, or any other crash-reporting SDK;</li>
+        <li>advertising SDKs;</li>
+        <li>social-login SDKs;</li>
+        <li>Facebook SDK, TikTok SDK, AppsFlyer, Adjust, Branch, or similar attribution SDKs;</li>
+        <li>push notification services (FCM/APNs messaging is not integrated).</li>
+      </ul>
+
+      <h2>4. Permissions the App requests</h2>
+      <p>The App does <strong>not</strong> request the microphone, camera, location, contacts, photos, calendar, Bluetooth, or cross-app tracking (ATT). It plays bundled audio using standard OS APIs, which do not require explicit permissions on either iOS or Android.</p>
+
+      <h2>5. Children</h2>
+      <p>The App is not directed at children under 13 and does not knowingly collect personal data from them. If you believe a child under the minimum age has used the App, contact us so we can assist.</p>
+
+      <h2>6. Your legal rights (GDPR, UA, UK GDPR, CCPA)</h2>
+      <p>Because the App does not associate any data with your identity, many traditional rights (access, export, erasure of "your personal data") do not apply in the usual sense — there is no server-side record linked to you. You nonetheless have the right to:</p>
+      <ul>
+        <li><strong>Access / portability:</strong> export your Journal entries manually by copying them from the App. A built-in export feature is not yet available; contact us if you need help.</li>
+        <li><strong>Erasure:</strong> delete individual Journal entries from within the App; delete all App data by uninstalling, using your OS's "Clear data" / "Offload app" / "Reset" action, or resetting the device.</li>
+        <li><strong>Subscription data:</strong> for purchase and subscription records held by Apple, Google, or RevenueCat, please exercise your rights directly with those providers — they are in a position to identify you by store account. We will assist if you contact us.</li>
+        <li><strong>Object / restrict / complain:</strong> you may object to processing or restrict it. If you are in the EU/EEA, UK, or Switzerland, you can also lodge a complaint with your national data-protection authority. Ukrainian users may contact the Ukrainian Parliament Commissioner for Human Rights (<span lang="uk">Уповноважений Верховної Ради України з прав людини</span>). California residents may exercise CCPA rights; we do not "sell" or "share" personal information for cross-context behavioral advertising.</li>
+      </ul>
+      <p>To exercise any right, email <strong><a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a></strong>.</p>
+
+      <h2>7. Legal basis (EU/EEA, UK, Switzerland)</h2>
+      <p>Where the GDPR or an equivalent law applies, the legal bases for the minimal processing described above are:</p>
+      <ul>
+        <li><strong>Contract</strong> (Art. 6(1)(b) GDPR) — providing the App and, where applicable, processing your subscription.</li>
+        <li><strong>Legitimate interest</strong> (Art. 6(1)(f) GDPR) — caching entitlement state so the App works offline, fetching the font used by the UI, and maintaining the integrity of the paywall.</li>
+        <li><strong>Consent</strong> — not relied upon by default because we do not run analytics, ads, or non-essential tracking. If that ever changes, we will request consent in-app first.</li>
+      </ul>
+
+      <h2>8. International transfers</h2>
+      <p>The App itself stores data on your device in your country of residence. When you interact with the paywall, RevenueCat and the App Store / Google Play may transfer data internationally (primarily to the United States) under their own safeguards (Standard Contractual Clauses and equivalent mechanisms).</p>
+
+      <h2>9. Retention</h2>
+      <ul>
+        <li>On-device data: kept until you delete it or uninstall the App.</li>
+        <li>RevenueCat: retained according to RevenueCat's retention policy for subscription data.</li>
+        <li>Apple / Google: retained according to their respective policies.</li>
+        <li>Support correspondence: if you email us at <a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a>, we keep the email thread for up to 24 months, then delete it.</li>
+      </ul>
+
+      <h2>10. Security</h2>
+      <p>We keep server-side processing to a minimum and rely on Apple's and Google's sandboxing to protect data stored on your device. Journal entries are not encrypted by the App beyond what the operating system provides at rest; if your device supports full-disk encryption and you have enabled a passcode, your data benefits from it. We recommend keeping your OS up to date and using a passcode or biometric lock.</p>
+
+      <h2>11. Changes to this Policy</h2>
+      <p>We may update this Policy as the App evolves. Changes will be reflected in the "Last updated" date above and, if material, highlighted in the App or at the store listing. Continued use after the updated Policy takes effect constitutes acknowledgement.</p>
+
+      <h2>12. Contact</h2>
+      <p>Questions, requests, or complaints about this Policy: <strong><a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a></strong>.</p>
+
+      <hr>
+
+      <h2>Appendix A — Technical inventory (for completeness)</h2>
+      <p>This section mirrors what a developer or auditor would see in the codebase, so that nothing in the App is undisclosed.</p>
+      <ul>
+        <li>Platform: Flutter (Dart <code>^3.11.3</code>), distributed globally on the Apple App Store and Google Play; package name / bundle identifier <code>app.nopanic</code>.</li>
+        <li>Third-party packages used that may touch the network or OS storage: <code>purchases_flutter</code> (RevenueCat), <code>google_fonts</code> (runtime font fetch), <code>just_audio</code> + <code>audio_session</code> (local audio playback), <code>shared_preferences</code> (local key-value storage), <code>sqflite</code> (local SQLite), <code>url_launcher</code> (opens external URLs in the system browser when you tap Terms, Privacy, or Support), <code>package_info_plus</code> (reads local app version/build number).</li>
+        <li>External URLs opened (only when you tap them): the Terms URL, the Privacy URL, and the Support email's <code>mailto:</code> link.</li>
+        <li>API keys: a RevenueCat public SDK key is compiled into the build via <code>--dart-define</code>. This key identifies the app, not you.</li>
+        <li>No backend owned by the Publisher processes user data at the time of writing.</li>
+      </ul>
+
+      <h2>Appendix B — Data deletion summary (for store review)</h2>
+      <p>If a store reviewer asks "how does a user delete their data?":</p>
+      <ol>
+        <li>Inside the App: open <strong>Journaling</strong>, delete entries individually.</li>
+        <li>Uninstall the App, or use your device's "Clear data" (Android) / "Offload App + Delete" (iOS) action. This removes all on-device App data, including Journal entries, affirmation favorites, onboarding flag, and the Pro entitlement cache.</li>
+        <li>To cancel or delete subscription data held by Apple, Google, or RevenueCat, use the subscription management tools in your App Store or Google Play account, or email <strong><a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a></strong> for assistance.</li>
+      </ol>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <p>© 2026 No Panic Labs</p>
+      <nav class="site-footer__links" aria-label="Legal and contact">
+        <a href="./privacy-policy.html">Privacy Policy</a>
+        <a href="./terms-of-use.html">Terms of Use</a>
+        <a href="mailto:denysdubov88@gmail.com">Contact</a>
+      </nav>
+      <nav class="site-header__lang" aria-label="Language">
+        <span class="is-active" aria-current="true">EN</span>
+        <span aria-hidden="true">|</span>
+        <a href="./privacy-policy.uk.html" hreflang="uk">UK</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
