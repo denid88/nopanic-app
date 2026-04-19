@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacy Policy — No Panic</title>
-  <meta name="description" content="How the No Panic app handles information. No account, no ads, no analytics, no tracking.">
+  <meta name="description" content="How the No Panic app handles information. No account, no ads, no tracking. Firebase Analytics is opt-in only.">
   <link rel="canonical" href="https://denid88.github.io/nopanic-app/privacy-policy.html">
   <link rel="icon" type="image/png" href="./assets/favicon.png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600&display=swap">
@@ -29,7 +29,7 @@
     <article class="prose">
       <h1>Privacy Policy — No Panic</h1>
       <p><strong>Effective date:</strong> <em>To be set before store submission</em><br>
-      <strong>Last updated:</strong> 2026-04-17</p>
+      <strong>Last updated:</strong> 2026-04-19</p>
       <p><strong>Publisher:</strong> No Panic Labs (temporary working name until legal entity is finalized), Ukraine.<br>
       <strong>Support contact:</strong> <a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a> (also the sole channel for privacy / GDPR requests).<br>
       <strong>Canonical URL:</strong> <a href="https://denid88.github.io/nopanic-app/privacy-policy.html">https://denid88.github.io/nopanic-app/privacy-policy.html</a></p>
@@ -37,9 +37,10 @@
       <p>We designed No Panic to be <strong>privacy-respecting by default</strong>:</p>
       <ul>
         <li><strong>No account, no sign-up, no login.</strong> The App is fully anonymous.</li>
-        <li><strong>No advertising, no analytics SDK, no crash-reporting SDK, no tracking.</strong></li>
+        <li><strong>No advertising, no crash-reporting SDK, no cross-app tracking, no advertising IDs.</strong></li>
+        <li><strong>Analytics are strictly opt-in.</strong> The App uses Firebase Analytics to understand aggregate usage, but collection is <strong>disabled by default</strong> and only turns on after you explicitly agree — during onboarding or later in Settings → Privacy. You can disable it again at any time and the SDK is instructed to stop collecting immediately.</li>
         <li><strong>Journal entries and favorites stay on your device.</strong> They are never uploaded to us.</li>
-        <li>The only external service the App talks to is the subscription provider (RevenueCat + Apple / Google) when you interact with the paywall, and Google Fonts when loading typography.</li>
+        <li>The external services the App talks to are: the subscription provider (RevenueCat + Apple / Google) when you interact with the paywall, Google Fonts when loading typography, and — <strong>only if you consented</strong> — Firebase Analytics.</li>
       </ul>
       <p>Read below for the details.</p>
 
@@ -76,6 +77,11 @@
             <td>Show a stable "affirmation of the day".</td>
           </tr>
           <tr>
+            <td><code>SharedPreferences</code></td>
+            <td><code>analytics_consent</code> — a boolean; <code>false</code> by default, set to <code>true</code> only after you explicitly opt in</td>
+            <td>Gate Firebase Analytics collection (see §3.4).</td>
+          </tr>
+          <tr>
             <td>Local SQLite database <code>nopanic_journal.db</code>, table <code>journal_entries</code></td>
             <td>Journal body text, optional mood emoji, created/updated timestamps, local auto-incremented ID</td>
             <td>Power the Journaling feature.</td>
@@ -85,14 +91,20 @@
             <td>Cached playback state for bundled audio files</td>
             <td>Smooth playback of exercises.</td>
           </tr>
+          <tr>
+            <td>Firebase Analytics local cache (only if analytics consent is granted)</td>
+            <td>An app-scoped pseudonymous Firebase Instance ID and a queue of events waiting to upload</td>
+            <td>Buffer analytics between network uploads. Cleared when you revoke consent or uninstall.</td>
+          </tr>
         </tbody>
       </table>
       <p>All of the above is removed when you uninstall the App or use your operating system's "Clear data" / "Offload app" action.</p>
       <p><strong>The App does not</strong> collect or store:</p>
       <ul>
-        <li>your name, email address, phone number, device ID, advertising ID (IDFA/GAID), or precise location;</li>
+        <li>your name, email address, phone number, or precise location;</li>
+        <li>advertising ID (IDFA / GAID) — the App does not request App Tracking Transparency (ATT) and does not read the advertising identifier;</li>
         <li>contacts, calendars, photos, microphone or camera input;</li>
-        <li>browsing or usage analytics;</li>
+        <li>browsing history, or any usage outside the App;</li>
         <li>push tokens (the App has no push notifications).</li>
       </ul>
 
@@ -122,15 +134,34 @@
         <li><strong>Note:</strong> if you disable this, some text will fall back to system fonts. We may ship the font as a bundled asset in a future version to remove this external call.</li>
       </ul>
 
-      <h3>3.4 Services that <strong>do not</strong> run</h3>
+      <h3>3.4 Firebase Analytics (opt-in only)</h3>
+      <ul>
+        <li><strong>What it is:</strong> Google's Firebase Analytics SDK (<code>firebase_core</code> + <code>firebase_analytics</code>), integrated to help us understand aggregate usage — which features people use, where flows drop off, which exercises help most. No raw content (journal text, favorites, messages) ever leaves the device.</li>
+        <li><strong>Consent model:</strong> <strong>disabled by default.</strong> The SDK is initialized with collection <strong>off</strong>. We show an Analytics Consent screen during onboarding and surface the same toggle in Settings → Privacy. Only after you tap "Agree" / enable the toggle do we call <code>setAnalyticsCollectionEnabled(true)</code>. Revoking consent calls <code>setAnalyticsCollectionEnabled(false)</code> immediately and suppresses all event and user-property calls in process.</li>
+        <li><strong>What is collected (only while enabled):</strong>
+          <ul>
+            <li>Screen views (via Firebase's <code>FirebaseAnalyticsObserver</code> wired to GoRouter).</li>
+            <li>Product events we explicitly log — e.g. <code>emergency_tapped</code>, <code>panic_flow_started</code> / <code>panic_flow_tip_viewed</code> / <code>panic_flow_completed</code> / <code>panic_flow_exited</code>, <code>exercise_opened</code> / <code>exercise_session_started</code> / <code>exercise_session_completed</code>, <code>journal_entry_saved</code> (with a <strong>bucketed</strong> word-count like <code>1-25</code>, never the raw count or text), <code>affirmation_favorited</code>, <code>paywall_shown</code> / <code>paywall_subscribe_tapped</code> / <code>purchase</code> / <code>restore_completed</code>, <code>settings_opened</code>, <code>legal_opened</code>, <code>support_opened</code>, <code>language_changed</code>, <code>onboarding_*</code>, <code>analytics_consent_shown</code> / <code>analytics_consent_set</code>. The full list lives in <code>lib/core/services/analytics_event.dart</code>.</li>
+            <li>Event parameters limited to non-identifying metadata: scenario IDs, tip indexes, preset IDs, exercise names, product IDs, currency, plan value, duration in seconds, progress percentage, word-count bucket, source of a screen open, from/to language code.</li>
+            <li>User properties: <code>has_pro</code> (true / false — whether you currently have the Pro entitlement), <code>app_language</code> (your UI language code), <code>onboarding_completed</code> (true / false).</li>
+            <li>Automatic Firebase-collected identifiers: a pseudonymous Firebase Instance ID (app-scoped, reset on uninstall or on revoking consent), IP address (used for approximate geo and then discarded per Google's retention policy), device model, OS version, app version.</li>
+          </ul>
+        </li>
+        <li><strong>What is never sent:</strong> journal text, journal titles, affirmation text, the content of tips, notes, audio being played, favorite lists, precise location, advertising ID, email, phone, or any identifier tied to your name.</li>
+        <li><strong>Where:</strong> Google's Firebase servers (United States and other Google regions), governed by Google's privacy policy and Firebase data-processing terms.</li>
+        <li><strong>Retention:</strong> we configure the Firebase project to use Google's default user-data retention window (currently 14 months for user-level data); aggregated reporting data is retained indefinitely.</li>
+        <li><strong>How to turn it off:</strong> Settings → Privacy → Analytics toggle. This flips <code>analytics_consent</code> to <code>false</code>, calls <code>setAnalyticsCollectionEnabled(false)</code>, and the SDK stops collecting on this device.</li>
+      </ul>
+
+      <h3>3.5 Services that <strong>do not</strong> run</h3>
       <p>For transparency, the App does <strong>not</strong> include:</p>
       <ul>
-        <li>Firebase, Google Analytics, Amplitude, Mixpanel, PostHog, or any other analytics SDK;</li>
+        <li>Amplitude, Mixpanel, PostHog, or any analytics SDK other than the Firebase Analytics described in §3.4;</li>
         <li>Sentry, Crashlytics, Bugsnag, or any other crash-reporting SDK;</li>
         <li>advertising SDKs;</li>
         <li>social-login SDKs;</li>
         <li>Facebook SDK, TikTok SDK, AppsFlyer, Adjust, Branch, or similar attribution SDKs;</li>
-        <li>push notification services (FCM/APNs messaging is not integrated).</li>
+        <li>push notification services (FCM/APNs messaging is not integrated, even though Firebase Core is present).</li>
       </ul>
 
       <h2>4. Permissions the App requests</h2>
@@ -154,17 +185,18 @@
       <ul>
         <li><strong>Contract</strong> (Art. 6(1)(b) GDPR) — providing the App and, where applicable, processing your subscription.</li>
         <li><strong>Legitimate interest</strong> (Art. 6(1)(f) GDPR) — caching entitlement state so the App works offline, fetching the font used by the UI, and maintaining the integrity of the paywall.</li>
-        <li><strong>Consent</strong> — not relied upon by default because we do not run analytics, ads, or non-essential tracking. If that ever changes, we will request consent in-app first.</li>
+        <li><strong>Consent</strong> (Art. 6(1)(a) GDPR) — the sole legal basis for Firebase Analytics. Collection is off by default and is only activated after you affirmatively opt in on the Analytics Consent screen (or in Settings → Privacy). You can withdraw consent at any time with the same toggle, with no effect on your ability to use the App. Withdrawal does not affect the lawfulness of processing carried out before withdrawal.</li>
       </ul>
 
       <h2>8. International transfers</h2>
-      <p>The App itself stores data on your device in your country of residence. When you interact with the paywall, RevenueCat and the App Store / Google Play may transfer data internationally (primarily to the United States) under their own safeguards (Standard Contractual Clauses and equivalent mechanisms).</p>
+      <p>The App itself stores data on your device in your country of residence. When you interact with the paywall, RevenueCat and the App Store / Google Play may transfer data internationally (primarily to the United States) under their own safeguards (Standard Contractual Clauses and equivalent mechanisms). If you have enabled analytics, Firebase Analytics also transfers event data to Google's infrastructure (primarily the United States) under Google's Standard Contractual Clauses and equivalent mechanisms.</p>
 
       <h2>9. Retention</h2>
       <ul>
         <li>On-device data: kept until you delete it or uninstall the App.</li>
         <li>RevenueCat: retained according to RevenueCat's retention policy for subscription data.</li>
         <li>Apple / Google: retained according to their respective policies.</li>
+        <li>Firebase Analytics (only if you opted in): user-level data retained for the default 14-month window configured on our Firebase project; aggregated reporting data retained indefinitely. Revoking consent or uninstalling stops further collection; existing uploaded events can be deleted on request (see §6).</li>
         <li>Support correspondence: if you email us at <a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a>, we keep the email thread for up to 24 months, then delete it.</li>
       </ul>
 
@@ -183,17 +215,18 @@
       <p>This section mirrors what a developer or auditor would see in the codebase, so that nothing in the App is undisclosed.</p>
       <ul>
         <li>Platform: Flutter (Dart <code>^3.11.3</code>), distributed globally on the Apple App Store and Google Play; package name / bundle identifier <code>app.nopanic</code>.</li>
-        <li>Third-party packages used that may touch the network or OS storage: <code>purchases_flutter</code> (RevenueCat), <code>google_fonts</code> (runtime font fetch), <code>just_audio</code> + <code>audio_session</code> (local audio playback), <code>shared_preferences</code> (local key-value storage), <code>sqflite</code> (local SQLite), <code>url_launcher</code> (opens external URLs in the system browser when you tap Terms, Privacy, or Support), <code>package_info_plus</code> (reads local app version/build number).</li>
+        <li>Third-party packages used that may touch the network or OS storage: <code>purchases_flutter</code> (RevenueCat), <code>firebase_core</code> + <code>firebase_analytics</code> (Firebase Analytics — gated on opt-in consent), <code>google_fonts</code> (runtime font fetch), <code>just_audio</code> + <code>audio_session</code> (local audio playback), <code>shared_preferences</code> (local key-value storage, including the <code>analytics_consent</code> flag), <code>sqflite</code> (local SQLite), <code>url_launcher</code> (opens external URLs in the system browser when you tap Terms, Privacy, or Support), <code>package_info_plus</code> (reads local app version/build number).</li>
         <li>External URLs opened (only when you tap them): the Terms URL, the Privacy URL, and the Support email's <code>mailto:</code> link.</li>
-        <li>API keys: a RevenueCat public SDK key is compiled into the build via <code>--dart-define</code>. This key identifies the app, not you.</li>
-        <li>No backend owned by the Publisher processes user data at the time of writing.</li>
+        <li>API keys: a RevenueCat public SDK key is compiled into the build via <code>--dart-define</code>. Firebase configuration (<code>GoogleService-Info.plist</code> / <code>google-services.json</code>) is bundled at build time. These keys identify the app, not you.</li>
+        <li>No backend owned by the Publisher processes user data at the time of writing; analytics data is processed by Google on our behalf only after explicit consent.</li>
       </ul>
 
       <h2>Appendix B — Data deletion summary (for store review)</h2>
       <p>If a store reviewer asks "how does a user delete their data?":</p>
       <ol>
         <li>Inside the App: open <strong>Journaling</strong>, delete entries individually.</li>
-        <li>Uninstall the App, or use your device's "Clear data" (Android) / "Offload App + Delete" (iOS) action. This removes all on-device App data, including Journal entries, affirmation favorites, onboarding flag, and the Pro entitlement cache.</li>
+        <li>Uninstall the App, or use your device's "Clear data" (Android) / "Offload App + Delete" (iOS) action. This removes all on-device App data, including Journal entries, affirmation favorites, onboarding flag, the Pro entitlement cache, the <code>analytics_consent</code> flag, and the Firebase Instance ID.</li>
+        <li>To stop ongoing analytics collection, open Settings → Privacy and disable the Analytics toggle. To also delete previously uploaded analytics events, email <strong><a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a></strong> and we will initiate a deletion request against the Firebase project.</li>
         <li>To cancel or delete subscription data held by Apple, Google, or RevenueCat, use the subscription management tools in your App Store or Google Play account, or email <strong><a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a></strong> for assistance.</li>
       </ol>
     </article>
