@@ -29,7 +29,7 @@
     <article class="prose">
       <h1>Privacy Policy — No Panic</h1>
       <p><strong>Effective date:</strong> <em>To be set before store submission</em><br>
-      <strong>Last updated:</strong> 2026-04-19</p>
+      <strong>Last updated:</strong> 2026-04-23</p>
       <p><strong>Publisher:</strong> No Panic Labs (temporary working name until legal entity is finalized), Ukraine.<br>
       <strong>Support contact:</strong> <a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a> (also the sole channel for privacy / GDPR requests).<br>
       <strong>Canonical URL:</strong> <a href="https://denid88.github.io/nopanic-app/privacy-policy.html">https://denid88.github.io/nopanic-app/privacy-policy.html</a></p>
@@ -37,7 +37,7 @@
       <p>We designed No Panic to be <strong>privacy-respecting by default</strong>:</p>
       <ul>
         <li><strong>No account, no sign-up, no login.</strong> The App is fully anonymous.</li>
-        <li><strong>No advertising, no crash-reporting SDK, no cross-app tracking, no advertising IDs.</strong></li>
+        <li><strong>No advertising and no crash-reporting SDK.</strong> The App does not read your advertising ID (IDFA / GAID) directly. On iOS, if — and only if — you opt in to analytics, the App presents Apple's App Tracking Transparency (ATT) prompt so Firebase Analytics may include the IDFA in its measurement; declining the ATT prompt is fully respected and the App keeps working the same way.</li>
         <li><strong>Analytics are strictly opt-in.</strong> The App uses Firebase Analytics to understand aggregate usage, but collection is <strong>disabled by default</strong> and only turns on after you explicitly agree — during onboarding or later in Settings → Privacy. You can disable it again at any time and the SDK is instructed to stop collecting immediately.</li>
         <li><strong>Journal entries and favorites stay on your device.</strong> They are never uploaded to us.</li>
         <li>The external services the App talks to are: the subscription provider (RevenueCat + Apple / Google) when you interact with the paywall, Google Fonts when loading typography, and — <strong>only if you consented</strong> — Firebase Analytics.</li>
@@ -102,7 +102,7 @@
       <p><strong>The App does not</strong> collect or store:</p>
       <ul>
         <li>your name, email address, phone number, or precise location;</li>
-        <li>advertising ID (IDFA / GAID) — the App does not request App Tracking Transparency (ATT) and does not read the advertising identifier;</li>
+        <li>advertising ID (IDFA / GAID) — the App does not read the IDFA or GAID itself. On iOS, when you tap "Agree" on the Analytics Consent screen, the App presents Apple's App Tracking Transparency (ATT) prompt so Firebase Analytics can access the IDFA for measurement; if you decline the ATT prompt, or decline analytics entirely, the IDFA is not shared with Firebase. On Android, the App does not request or read the Google Advertising ID (GAID);</li>
         <li>contacts, calendars, photos, microphone or camera input;</li>
         <li>browsing history, or any usage outside the App;</li>
         <li>push tokens (the App has no push notifications).</li>
@@ -138,11 +138,12 @@
       <ul>
         <li><strong>What it is:</strong> Google's Firebase Analytics SDK (<code>firebase_core</code> + <code>firebase_analytics</code>), integrated to help us understand aggregate usage — which features people use, where flows drop off, which exercises help most. No raw content (journal text, favorites, messages) ever leaves the device.</li>
         <li><strong>Consent model:</strong> <strong>disabled by default.</strong> The SDK is initialized with collection <strong>off</strong>. We show an Analytics Consent screen during onboarding and surface the same toggle in Settings → Privacy. Only after you tap "Agree" / enable the toggle do we call <code>setAnalyticsCollectionEnabled(true)</code>. Revoking consent calls <code>setAnalyticsCollectionEnabled(false)</code> immediately and suppresses all event and user-property calls in process.</li>
+        <li><strong>App Tracking Transparency (iOS only):</strong> when you tap "Agree" on the Analytics Consent screen on iOS, the App calls Apple's ATT API (via the <code>app_tracking_transparency</code> package) to show the system prompt. Your choice governs whether Firebase Analytics may associate the advertising identifier (IDFA) with analytics events. If you tap "Ask App Not to Track" (or had tracking disabled globally), no IDFA is ever shared with Firebase — analytics still work using only the pseudonymous Firebase Instance ID. We never read the IDFA ourselves. For our own measurement of opt-in rates, we attach the outcome (<code>authorized</code> / <code>denied</code> / <code>restricted</code> / <code>not_determined</code> / <code>not_supported</code>) as an <code>att_status</code> parameter on the <code>analytics_consent_set</code> event. You can change your tracking choice at any time in iOS Settings → Privacy &amp; Security → Tracking.</li>
         <li><strong>What is collected (only while enabled):</strong>
           <ul>
             <li>Screen views (via Firebase's <code>FirebaseAnalyticsObserver</code> wired to GoRouter).</li>
             <li>Product events we explicitly log — e.g. <code>emergency_tapped</code>, <code>panic_flow_started</code> / <code>panic_flow_tip_viewed</code> / <code>panic_flow_completed</code> / <code>panic_flow_exited</code>, <code>exercise_opened</code> / <code>exercise_session_started</code> / <code>exercise_session_completed</code>, <code>journal_entry_saved</code> (with a <strong>bucketed</strong> word-count like <code>1-25</code>, never the raw count or text), <code>affirmation_favorited</code>, <code>paywall_shown</code> / <code>paywall_subscribe_tapped</code> / <code>purchase</code> / <code>restore_completed</code>, <code>settings_opened</code>, <code>legal_opened</code>, <code>support_opened</code>, <code>language_changed</code>, <code>onboarding_*</code>, <code>analytics_consent_shown</code> / <code>analytics_consent_set</code>. The full list lives in <code>lib/core/services/analytics_event.dart</code>.</li>
-            <li>Event parameters limited to non-identifying metadata: scenario IDs, tip indexes, preset IDs, exercise names, product IDs, currency, plan value, duration in seconds, progress percentage, word-count bucket, source of a screen open, from/to language code.</li>
+            <li>Event parameters limited to non-identifying metadata: scenario IDs, tip indexes, preset IDs, exercise names, product IDs, currency, plan value, duration in seconds, progress percentage, word-count bucket, source of a screen open, from/to language code, ATT outcome (<code>att_status</code>: <code>authorized</code> / <code>denied</code> / <code>restricted</code> / <code>not_determined</code> / <code>not_supported</code>).</li>
             <li>User properties: <code>has_pro</code> (true / false — whether you currently have the Pro entitlement), <code>app_language</code> (your UI language code), <code>onboarding_completed</code> (true / false).</li>
             <li>Automatic Firebase-collected identifiers: a pseudonymous Firebase Instance ID (app-scoped, reset on uninstall or on revoking consent), IP address (used for approximate geo and then discarded per Google's retention policy), device model, OS version, app version.</li>
           </ul>
@@ -165,7 +166,7 @@
       </ul>
 
       <h2>4. Permissions the App requests</h2>
-      <p>The App does <strong>not</strong> request the microphone, camera, location, contacts, photos, calendar, Bluetooth, or cross-app tracking (ATT). It plays bundled audio using standard OS APIs, which do not require explicit permissions on either iOS or Android.</p>
+      <p>The App does <strong>not</strong> request the microphone, camera, location, contacts, photos, calendar, or Bluetooth. On iOS, the App does request Apple's App Tracking Transparency (ATT) permission — <strong>only</strong> when you affirmatively opt in to analytics on the Analytics Consent screen, never on first launch and never if you decline analytics. The purpose is described in §3.4. It plays bundled audio using standard OS APIs, which do not require explicit permissions on either iOS or Android.</p>
 
       <h2>5. Children</h2>
       <p>The App is not directed at children under 13 and does not knowingly collect personal data from them. If you believe a child under the minimum age has used the App, contact us so we can assist.</p>
@@ -215,7 +216,7 @@
       <p>This section mirrors what a developer or auditor would see in the codebase, so that nothing in the App is undisclosed.</p>
       <ul>
         <li>Platform: Flutter (Dart <code>^3.11.3</code>), distributed globally on the Apple App Store and Google Play; package name / bundle identifier <code>app.nopanic</code>.</li>
-        <li>Third-party packages used that may touch the network or OS storage: <code>purchases_flutter</code> (RevenueCat), <code>firebase_core</code> + <code>firebase_analytics</code> (Firebase Analytics — gated on opt-in consent), <code>google_fonts</code> (runtime font fetch), <code>just_audio</code> + <code>audio_session</code> (local audio playback), <code>shared_preferences</code> (local key-value storage, including the <code>analytics_consent</code> flag), <code>sqflite</code> (local SQLite), <code>url_launcher</code> (opens external URLs in the system browser when you tap Terms, Privacy, or Support), <code>package_info_plus</code> (reads local app version/build number).</li>
+        <li>Third-party packages used that may touch the network or OS storage: <code>purchases_flutter</code> (RevenueCat), <code>firebase_core</code> + <code>firebase_analytics</code> (Firebase Analytics — gated on opt-in consent), <code>app_tracking_transparency</code> (iOS only — shows the system ATT prompt when analytics is opted in, as described in §3.4), <code>google_fonts</code> (runtime font fetch), <code>just_audio</code> + <code>audio_session</code> (local audio playback), <code>shared_preferences</code> (local key-value storage, including the <code>analytics_consent</code> flag), <code>sqflite</code> (local SQLite), <code>url_launcher</code> (opens external URLs in the system browser when you tap Terms, Privacy, or Support), <code>package_info_plus</code> (reads local app version/build number).</li>
         <li>External URLs opened (only when you tap them): the Terms URL, the Privacy URL, and the Support email's <code>mailto:</code> link.</li>
         <li>API keys: a RevenueCat public SDK key is compiled into the build via <code>--dart-define</code>. Firebase configuration (<code>GoogleService-Info.plist</code> / <code>google-services.json</code>) is bundled at build time. These keys identify the app, not you.</li>
         <li>No backend owned by the Publisher processes user data at the time of writing; analytics data is processed by Google on our behalf only after explicit consent.</li>
