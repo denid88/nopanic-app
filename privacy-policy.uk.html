@@ -47,7 +47,7 @@
       <p><a href="./index.uk.html">← На головну</a></p>
       <h1>Політика конфіденційності — No Panic</h1>
       <p><strong>Дата набуття чинності:</strong> <em>Буде встановлена перед публікацією в магазинах</em><br>
-      <strong>Останнє оновлення:</strong> 2026-05-07</p>
+      <strong>Останнє оновлення:</strong> 2026-05-14</p>
       <p><strong>Видавець:</strong> No Panic Labs (тимчасова робоча назва до завершення реєстрації юридичної особи), Україна.<br>
       <strong>Контакт підтримки:</strong> <a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a> (також єдиний канал для запитів щодо приватності / GDPR).<br>
       <strong>Канонічна URL-адреса:</strong> <a href="https://denid88.github.io/nopanic-app/privacy-policy.uk.html">https://denid88.github.io/nopanic-app/privacy-policy.uk.html</a></p>
@@ -55,10 +55,10 @@
       <p>Ми розробили No Panic так, щоб він <strong>за замовчуванням поважав вашу приватність</strong>:</p>
       <ul>
         <li><strong>Без акаунтів, без реєстрації, без входу.</strong> Застосунок повністю анонімний.</li>
-        <li><strong>Без реклами та без SDK для звітів про збої.</strong> Застосунок не зчитує рекламний ідентифікатор (IDFA / GAID) безпосередньо. На iOS, якщо — і лише якщо — ви даєте згоду на аналітику, Застосунок показує системне вікно App Tracking Transparency (ATT) від Apple, щоб Firebase Analytics могла використовувати IDFA у вимірюваннях; відмова на вікні ATT повністю поважається, і Застосунок продовжує працювати без змін.</li>
-        <li><strong>Аналітика — суто за явною згодою.</strong> Застосунок використовує Firebase Analytics, щоб розуміти агреговане використання, але збір <strong>вимкнено за замовчуванням</strong> і активується лише після вашої явної згоди — під час онбордингу або пізніше в Налаштуваннях → Приватність. Ви можете вимкнути його будь-коли, і SDK негайно припинить збір.</li>
+        <li><strong>Без реклами та без SDK для звітів про збої.</strong> Застосунок не зчитує рекламний ідентифікатор (IDFA / GAID) безпосередньо. На iOS, якщо — і лише якщо — ви даєте згоду на аналітику, Застосунок показує системне вікно App Tracking Transparency (ATT) від Apple, щоб Firebase Analytics та Facebook App Events могли використовувати IDFA у вимірюваннях; відмова на вікні ATT повністю поважається, і Застосунок продовжує працювати без змін.</li>
+        <li><strong>Аналітика — суто за явною згодою.</strong> Застосунок використовує Firebase Analytics та Facebook App Events, щоб розуміти агреговане використання, але збір <strong>вимкнено за замовчуванням</strong> і активується лише після вашої явної згоди — під час онбордингу або пізніше в Налаштуваннях → Приватність. Ви можете вимкнути його будь-коли, і обидва SDK негайно припинять збір.</li>
         <li><strong>Записи Щоденника та обране залишаються на вашому пристрої.</strong> Вони ніколи не передаються нам.</li>
-        <li>Зовнішні сервіси, з якими взаємодіє Застосунок: постачальник підписок (RevenueCat + Apple / Google), коли ви взаємодієте з вікном оплати; Google Fonts під час завантаження шрифту; і — <strong>лише якщо ви дали згоду</strong> — Firebase Analytics.</li>
+        <li>Зовнішні сервіси, з якими взаємодіє Застосунок: постачальник підписок (RevenueCat + Apple / Google), коли ви взаємодієте з вікном оплати; Google Fonts під час завантаження шрифту; і — <strong>лише якщо ви дали згоду</strong> — Firebase Analytics та Facebook App Events.</li>
       </ul>
       <p>Детальніше — нижче.</p>
 
@@ -178,19 +178,31 @@
         <li><strong>Як вимкнути:</strong> Налаштування → Приватність → перемикач «Аналітика». Це переводить <code>analytics_consent</code> у <code>false</code>, викликає <code>setAnalyticsCollectionEnabled(false)</code>, і SDK припиняє збір на цьому пристрої.</li>
       </ul>
 
-      <h3>3.5 Сервіси, яких <strong>немає</strong></h3>
+      <h3>3.5 Facebook App Events (лише за явною згодою)</h3>
+      <ul>
+        <li><strong>Що це:</strong> SDK Meta Platforms «Facebook App Events» (<code>facebook_app_events</code>), що використовується для агрегованого вимірювання використання функцій і маркетингових кампаній. Жодного «сирого» контенту (тексту щоденника, обраного, повідомлень) пристрій ніколи не залишає.</li>
+        <li><strong>Модель згоди:</strong> <strong>вимкнено за замовчуванням.</strong> SDK ініціалізується з вимкненим автологуванням і вимкненим збором рекламного ідентифікатора (<code>FacebookAutoLogAppEventsEnabled = false</code>, <code>FacebookAdvertiserIDCollectionEnabled = false</code> у <code>Info.plist</code> і відповідні <code>meta-data</code> прапорці в <code>AndroidManifest.xml</code>). Той самий перемикач згоди, що керує Firebase Analytics (екран Згоди під час онбордингу; Налаштування → Приватність далі), керує і Facebook App Events. Лише після того, як ви натискаєте «Погоджуюся» / вмикаєте перемикач, ми викликаємо <code>setAutoLogAppEventsEnabled(true)</code>. Відкликання згоди викликає <code>setAutoLogAppEventsEnabled(false)</code> і повністю придушує всі виклики подій у процесі.</li>
+        <li><strong>App Tracking Transparency (лише iOS):</strong> навіть якщо внутрішньоапова згода надана, Facebook App Events мовчить, доки результат ATT не дорівнює <code>authorized</code>. Якщо ви натиснули «Попросити застосунок не відстежувати», або відстеження було вимкнено глобально, Застосунок викликає <code>setAdvertiserTracking(enabled: false)</code> на SDK, утримує прапорець автологування й не надсилає подій до Meta. На Android вікна ATT немає; SDK активується одразу, коли надано внутрішньоапову згоду.</li>
+        <li><strong>Що надсилається (лише поки увімкнено):</strong> ті самі імена подій і неідентифікуючі параметри, описані в §3.4, дзеркаляться до Meta — наприклад, <code>emergency_tapped</code>, <code>panic_flow_started</code> / <code>panic_flow_completed</code>, <code>exercise_session_started</code> / <code>exercise_session_completed</code>, <code>paywall_subscribe_tapped</code>, <code>purchase</code>, <code>restore_completed</code>, <code>language_changed</code>, <code>analytics_consent_set</code>. Покупки додатково містять ID товару, суму та валюту у стандартному форматі покупок Meta.</li>
+        <li><strong>Що ніколи не надсилається:</strong> текст Щоденника, заголовки записів, текст афірмацій, зміст підказок, нотатки, аудіо, списки обраного, точне місцеперебування, email, телефон чи будь-який ідентифікатор, прив'язаний до вашого імені. Ми не викликаємо <code>setUserData</code> чи <code>setUserID</code>, тож Meta ніколи не отримує від нас хешованого email, телефону чи клієнтського ID.</li>
+        <li><strong>Де:</strong> сервери Meta Platforms, Inc. (переважно у США та Ірландії), регулюється політикою приватності Meta й умовами обробки даних.</li>
+        <li><strong>Зберігання:</strong> відповідно до стандартної політики зберігання даних app-events від Meta (див. політику приватності Meta). Відкликання згоди або видалення Застосунку зупиняє подальший збір.</li>
+        <li><strong>Як вимкнути:</strong> Налаштування → Приватність → перемикач «Аналітика». Це переводить <code>analytics_consent</code> у <code>false</code>, викликає <code>setAutoLogAppEventsEnabled(false)</code> на Facebook SDK, і SDK припиняє надсилати події з цього пристрою.</li>
+      </ul>
+
+      <h3>3.6 Сервіси, яких <strong>немає</strong></h3>
       <p>Для прозорості: Застосунок <strong>не</strong> містить:</p>
       <ul>
-        <li>Amplitude, Mixpanel, PostHog або будь-якого SDK аналітики, відмінного від Firebase Analytics, описаної в §3.4;</li>
+        <li>Amplitude, Mixpanel, PostHog або будь-якого SDK аналітики, відмінного від Firebase Analytics, описаної в §3.4, та Facebook App Events, описаних у §3.5;</li>
         <li>Sentry, Crashlytics, Bugsnag або будь-якого іншого SDK для звітів про збої;</li>
         <li>рекламних SDK;</li>
-        <li>SDK для соціального входу;</li>
-        <li>Facebook SDK, TikTok SDK, AppsFlyer, Adjust, Branch або подібних SDK атрибуції;</li>
+        <li>SDK для соціального входу (SDK Facebook App Events, описаний у §3.5, <strong>не</strong> містить Facebook Login чи інших функцій соцграфу — лише підмножину для app-events / вимірювання);</li>
+        <li>TikTok SDK, AppsFlyer, Adjust, Branch або інших SDK атрибуції;</li>
         <li>сервісів push-сповіщень (FCM/APNs messaging не інтегровано, хоча Firebase Core присутній).</li>
       </ul>
 
       <h2>4. Дозволи, які запитує Застосунок</h2>
-      <p>Застосунок <strong>не</strong> запитує доступ до мікрофона, камери, місцеперебування, контактів, фото, календаря чи Bluetooth. На iOS Застосунок запитує дозвіл Apple App Tracking Transparency (ATT) — <strong>лише</strong> коли ви явно погоджуєтеся на аналітику на екрані Згоди на аналітику; ніколи не при першому запуску і ніколи, якщо ви відмовляєтеся від аналітики. Мета описана в §3.4.</p>
+      <p>Застосунок <strong>не</strong> запитує доступ до мікрофона, камери, місцеперебування, контактів, фото, календаря чи Bluetooth. На iOS Застосунок запитує дозвіл Apple App Tracking Transparency (ATT) — <strong>лише</strong> коли ви явно погоджуєтеся на аналітику на екрані Згоди на аналітику; ніколи не при першому запуску і ніколи, якщо ви відмовляєтеся від аналітики. Мета описана в §3.4 та §3.5.</p>
       <p>Застосунок відтворює вбудоване аудіо за допомогою стандартних API ОС. Щоб увімкнути фонове відтворення для вправи <strong>Sleep</strong> — аби музика продовжувала грати, коли ви блокуєте екран, і щоб залишалися доступними елементи керування на екрані блокування / у Центрі керування / у сповіщеннях — Застосунок декларує такі можливості ОС, що не потребують запиту до користувача: на Android — дозволи <code>WAKE_LOCK</code>, <code>FOREGROUND_SERVICE</code> та <code>FOREGROUND_SERVICE_MEDIA_PLAYBACK</code> і службу медіа-відтворення на передньому плані (надається пакетом <code>audio_service</code>); на iOS — значення <code>audio</code> у масиві <code>UIBackgroundModes</code> файлу <code>Info.plist</code>. Жодна з цих можливостей не показує інтерактивного запиту дозволу і не надає Застосунку доступу до ваших даних — вони лише дозволяють аудіо-двигуну Застосунку продовжувати відтворення, поки Застосунок працює у фоні або екран вимкнений.</p>
 
       <h2>5. Діти</h2>
@@ -241,7 +253,7 @@
       <p>Цей розділ віддзеркалює те, що розробник чи аудитор побачив би у кодовій базі, щоб нічого в Застосунку не залишалося нерозкритим.</p>
       <ul>
         <li>Платформа: Flutter (Dart <code>^3.11.3</code>), поширюється глобально в Apple App Store і Google Play; ім'я пакета / ідентифікатор збірки <code>app.nopanic</code>.</li>
-        <li>Сторонні пакети, що можуть звертатися до мережі або сховища ОС: <code>purchases_flutter</code> (RevenueCat), <code>firebase_core</code> + <code>firebase_analytics</code> (Firebase Analytics — за явною згодою), <code>app_tracking_transparency</code> (лише iOS — показує системне вікно ATT, коли дано згоду на аналітику, як описано в §3.4), <code>google_fonts</code> (завантаження шрифту в рантаймі), <code>just_audio</code> + <code>audio_service</code> + <code>audio_session</code> (локальне відтворення аудіо, включно з фоновим відтворенням і елементами керування на екрані блокування / у Центрі керування / у сповіщеннях для вправи Sleep через спеціальний <code>AudioHandler</code>; інші вправи використовують лише чистий <code>just_audio</code>), <code>shared_preferences</code> (локальне сховище «ключ-значення», зокрема прапорець <code>analytics_consent</code>), <code>sqflite</code> (локальний SQLite), <code>url_launcher</code> (відкриває зовнішні URL у системному браузері, коли ви натискаєте «Умови», «Приватність» чи «Підтримка»), <code>package_info_plus</code> (зчитує локальну версію/номер збірки застосунку).</li>
+        <li>Сторонні пакети, що можуть звертатися до мережі або сховища ОС: <code>purchases_flutter</code> (RevenueCat), <code>firebase_core</code> + <code>firebase_analytics</code> (Firebase Analytics — за явною згодою), <code>facebook_app_events</code> (Meta Facebook App Events — за явною згодою і, на iOS, за умови ATT = <code>authorized</code>, як описано в §3.5), <code>app_tracking_transparency</code> (лише iOS — показує системне вікно ATT, коли дано згоду на аналітику, як описано в §3.4 та §3.5), <code>google_fonts</code> (завантаження шрифту в рантаймі), <code>just_audio</code> + <code>audio_service</code> + <code>audio_session</code> (локальне відтворення аудіо, включно з фоновим відтворенням і елементами керування на екрані блокування / у Центрі керування / у сповіщеннях для вправи Sleep через спеціальний <code>AudioHandler</code>; інші вправи використовують лише чистий <code>just_audio</code>), <code>shared_preferences</code> (локальне сховище «ключ-значення», зокрема прапорець <code>analytics_consent</code>), <code>sqflite</code> (локальний SQLite), <code>url_launcher</code> (відкриває зовнішні URL у системному браузері, коли ви натискаєте «Умови», «Приватність» чи «Підтримка»), <code>package_info_plus</code> (зчитує локальну версію/номер збірки застосунку).</li>
         <li>Зовнішні URL, що відкриваються (лише коли ви їх натискаєте): URL Умов, URL Приватності та <code>mailto:</code> посилання на email підтримки.</li>
         <li>API-ключі: публічний SDK-ключ RevenueCat вкомпільовується у збірку через <code>--dart-define</code>. Конфігурація Firebase (<code>GoogleService-Info.plist</code> / <code>google-services.json</code>) поставляється на етапі збірки. Ці ключі ідентифікують застосунок, а не вас.</li>
         <li>На момент написання жоден бекенд, що належить Видавцю, не обробляє дані користувачів; аналітичні дані обробляються Google від нашого імені виключно після явної згоди.</li>

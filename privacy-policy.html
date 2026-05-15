@@ -47,7 +47,7 @@
       <p><a href="./index.html">← Home</a></p>
       <h1>Privacy Policy — No Panic</h1>
       <p><strong>Effective date:</strong> <em>To be set before store submission</em><br>
-      <strong>Last updated:</strong> 2026-05-07</p>
+      <strong>Last updated:</strong> 2026-05-14</p>
       <p><strong>Publisher:</strong> No Panic Labs (temporary working name until legal entity is finalized), Ukraine.<br>
       <strong>Support contact:</strong> <a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a> (also the sole channel for privacy / GDPR requests).<br>
       <strong>Canonical URL:</strong> <a href="https://denid88.github.io/nopanic-app/privacy-policy.html">https://denid88.github.io/nopanic-app/privacy-policy.html</a></p>
@@ -55,10 +55,10 @@
       <p>We designed No Panic to be <strong>privacy-respecting by default</strong>:</p>
       <ul>
         <li><strong>No account, no sign-up, no login.</strong> The App is fully anonymous.</li>
-        <li><strong>No advertising and no crash-reporting SDK.</strong> The App does not read your advertising ID (IDFA / GAID) directly. On iOS, if — and only if — you opt in to analytics, the App presents Apple's App Tracking Transparency (ATT) prompt so Firebase Analytics may include the IDFA in its measurement; declining the ATT prompt is fully respected and the App keeps working the same way.</li>
-        <li><strong>Analytics are strictly opt-in.</strong> The App uses Firebase Analytics to understand aggregate usage, but collection is <strong>disabled by default</strong> and only turns on after you explicitly agree — during onboarding or later in Settings → Privacy. You can disable it again at any time and the SDK is instructed to stop collecting immediately.</li>
+        <li><strong>No advertising and no crash-reporting SDK.</strong> The App does not read your advertising ID (IDFA / GAID) directly. On iOS, if — and only if — you opt in to analytics, the App presents Apple's App Tracking Transparency (ATT) prompt so Firebase Analytics and Facebook App Events may include the IDFA in their measurement; declining the ATT prompt is fully respected and the App keeps working the same way.</li>
+        <li><strong>Analytics are strictly opt-in.</strong> The App uses Firebase Analytics and Facebook App Events to understand aggregate usage, but collection is <strong>disabled by default</strong> and only turns on after you explicitly agree — during onboarding or later in Settings → Privacy. You can disable it again at any time and both SDKs are instructed to stop collecting immediately.</li>
         <li><strong>Journal entries and favorites stay on your device.</strong> They are never uploaded to us.</li>
-        <li>The external services the App talks to are: the subscription provider (RevenueCat + Apple / Google) when you interact with the paywall, Google Fonts when loading typography, and — <strong>only if you consented</strong> — Firebase Analytics.</li>
+        <li>The external services the App talks to are: the subscription provider (RevenueCat + Apple / Google) when you interact with the paywall, Google Fonts when loading typography, and — <strong>only if you consented</strong> — Firebase Analytics and Facebook App Events.</li>
       </ul>
       <p>Read below for the details.</p>
 
@@ -178,19 +178,31 @@
         <li><strong>How to turn it off:</strong> Settings → Privacy → Analytics toggle. This flips <code>analytics_consent</code> to <code>false</code>, calls <code>setAnalyticsCollectionEnabled(false)</code>, and the SDK stops collecting on this device.</li>
       </ul>
 
-      <h3>3.5 Services that <strong>do not</strong> run</h3>
+      <h3>3.5 Facebook App Events (opt-in only)</h3>
+      <ul>
+        <li><strong>What it is:</strong> Meta Platforms' Facebook App Events SDK (<code>facebook_app_events</code>), used for aggregate measurement of feature usage and acquisition campaigns. No raw content (journal text, favorites, messages) ever leaves the device.</li>
+        <li><strong>Consent model:</strong> <strong>disabled by default.</strong> The SDK is initialized with auto-logging off and advertiser-ID collection off (<code>FacebookAutoLogAppEventsEnabled = false</code>, <code>FacebookAdvertiserIDCollectionEnabled = false</code> in <code>Info.plist</code> and the matching <code>meta-data</code> flags in <code>AndroidManifest.xml</code>). The same in-app consent toggle that gates Firebase Analytics (Analytics Consent screen during onboarding; Settings → Privacy afterwards) also controls Facebook App Events. Only after you tap "Agree" / enable the toggle do we call <code>setAutoLogAppEventsEnabled(true)</code>. Revoking consent calls <code>setAutoLogAppEventsEnabled(false)</code> and suppresses all event calls in process.</li>
+        <li><strong>App Tracking Transparency (iOS only):</strong> even with in-app consent granted, Facebook App Events stays silent unless Apple's ATT outcome is <code>authorized</code>. If you tap "Ask App Not to Track", or had tracking disabled globally, the App calls <code>setAdvertiserTracking(enabled: false)</code> on the SDK, holds back the auto-log flag, and never sends events to Meta. On Android there is no ATT prompt; the SDK is enabled when in-app consent is granted.</li>
+        <li><strong>What is sent (only while enabled):</strong> the same event names and non-identifying parameters described in §3.4 mirrored to Meta — e.g. <code>emergency_tapped</code>, <code>panic_flow_started</code> / <code>panic_flow_completed</code>, <code>exercise_session_started</code> / <code>exercise_session_completed</code>, <code>paywall_subscribe_tapped</code>, <code>purchase</code>, <code>restore_completed</code>, <code>language_changed</code>, <code>analytics_consent_set</code>. Purchases additionally include the product ID, amount, and currency in Meta's standard purchase schema.</li>
+        <li><strong>What is never sent:</strong> journal text, journal titles, affirmation text, the content of tips, notes, audio being played, favorite lists, precise location, email, phone, or any identifier tied to your name. We never call <code>setUserData</code> or <code>setUserID</code> on the SDK, so Meta never receives a hashed email, phone, or customer ID from us.</li>
+        <li><strong>Where:</strong> Meta Platforms, Inc.'s servers (primarily the United States and Ireland), governed by Meta's privacy policy and data-processing terms.</li>
+        <li><strong>Retention:</strong> governed by Meta's default app-events retention policy (see Meta's privacy policy). Revoking consent or uninstalling stops further collection.</li>
+        <li><strong>How to turn it off:</strong> Settings → Privacy → Analytics toggle. This flips <code>analytics_consent</code> to <code>false</code>, calls <code>setAutoLogAppEventsEnabled(false)</code> on the Facebook SDK, and the SDK stops sending events on this device.</li>
+      </ul>
+
+      <h3>3.6 Services that <strong>do not</strong> run</h3>
       <p>For transparency, the App does <strong>not</strong> include:</p>
       <ul>
-        <li>Amplitude, Mixpanel, PostHog, or any analytics SDK other than the Firebase Analytics described in §3.4;</li>
+        <li>Amplitude, Mixpanel, PostHog, or any analytics SDK other than the Firebase Analytics described in §3.4 and the Facebook App Events described in §3.5;</li>
         <li>Sentry, Crashlytics, Bugsnag, or any other crash-reporting SDK;</li>
         <li>advertising SDKs;</li>
-        <li>social-login SDKs;</li>
-        <li>Facebook SDK, TikTok SDK, AppsFlyer, Adjust, Branch, or similar attribution SDKs;</li>
+        <li>social-login SDKs (the Facebook App Events SDK described in §3.5 does <strong>not</strong> include Facebook Login or any social-graph features — only the app-events / measurement subset);</li>
+        <li>TikTok SDK, AppsFlyer, Adjust, Branch, or other attribution SDKs;</li>
         <li>push notification services (FCM/APNs messaging is not integrated, even though Firebase Core is present).</li>
       </ul>
 
       <h2>4. Permissions the App requests</h2>
-      <p>The App does <strong>not</strong> request the microphone, camera, location, contacts, photos, calendar, or Bluetooth. On iOS, the App does request Apple's App Tracking Transparency (ATT) permission — <strong>only</strong> when you affirmatively opt in to analytics on the Analytics Consent screen, never on first launch and never if you decline analytics. The purpose is described in §3.4.</p>
+      <p>The App does <strong>not</strong> request the microphone, camera, location, contacts, photos, calendar, or Bluetooth. On iOS, the App does request Apple's App Tracking Transparency (ATT) permission — <strong>only</strong> when you affirmatively opt in to analytics on the Analytics Consent screen, never on first launch and never if you decline analytics. The purpose is described in §3.4 and §3.5.</p>
       <p>The App plays bundled audio using standard OS APIs. To enable background playback for the <strong>Sleep</strong> exercise — so the music keeps playing when you lock the screen and lock-screen / Control Center / Notification controls remain available — the App declares the following non-prompting OS capabilities: on Android, the <code>WAKE_LOCK</code>, <code>FOREGROUND_SERVICE</code>, and <code>FOREGROUND_SERVICE_MEDIA_PLAYBACK</code> permissions and a media-playback foreground service (provided by the <code>audio_service</code> package); on iOS, the <code>audio</code> value in the <code>UIBackgroundModes</code> array of <code>Info.plist</code>. None of these capabilities show an interactive permission prompt or grant the App access to any of your data — they only allow the App's own audio engine to keep playing while the App is backgrounded or the screen is off.</p>
 
       <h2>5. Children</h2>
@@ -211,11 +223,11 @@
       <ul>
         <li><strong>Contract</strong> (Art. 6(1)(b) GDPR) — providing the App and, where applicable, processing your subscription.</li>
         <li><strong>Legitimate interest</strong> (Art. 6(1)(f) GDPR) — caching entitlement state so the App works offline, fetching the font used by the UI, and maintaining the integrity of the paywall.</li>
-        <li><strong>Consent</strong> (Art. 6(1)(a) GDPR) — the sole legal basis for Firebase Analytics. Collection is off by default and is only activated after you affirmatively opt in on the Analytics Consent screen (or in Settings → Privacy). You can withdraw consent at any time with the same toggle, with no effect on your ability to use the App. Withdrawal does not affect the lawfulness of processing carried out before withdrawal.</li>
+        <li><strong>Consent</strong> (Art. 6(1)(a) GDPR) — the sole legal basis for Firebase Analytics and Facebook App Events. Collection by both SDKs is off by default and is only activated after you affirmatively opt in on the Analytics Consent screen (or in Settings → Privacy). You can withdraw consent at any time with the same toggle, with no effect on your ability to use the App. Withdrawal does not affect the lawfulness of processing carried out before withdrawal.</li>
       </ul>
 
       <h2>8. International transfers</h2>
-      <p>The App itself stores data on your device in your country of residence. When you interact with the paywall, RevenueCat and the App Store / Google Play may transfer data internationally (primarily to the United States) under their own safeguards (Standard Contractual Clauses and equivalent mechanisms). If you have enabled analytics, Firebase Analytics also transfers event data to Google's infrastructure (primarily the United States) under Google's Standard Contractual Clauses and equivalent mechanisms.</p>
+      <p>The App itself stores data on your device in your country of residence. When you interact with the paywall, RevenueCat and the App Store / Google Play may transfer data internationally (primarily to the United States) under their own safeguards (Standard Contractual Clauses and equivalent mechanisms). If you have enabled analytics, Firebase Analytics also transfers event data to Google's infrastructure (primarily the United States) under Google's Standard Contractual Clauses and equivalent mechanisms, and Facebook App Events transfers event data to Meta Platforms' infrastructure (primarily the United States and Ireland) under Meta's Standard Contractual Clauses and equivalent mechanisms.</p>
 
       <h2>9. Retention</h2>
       <ul>
@@ -223,6 +235,7 @@
         <li>RevenueCat: retained according to RevenueCat's retention policy for subscription data.</li>
         <li>Apple / Google: retained according to their respective policies.</li>
         <li>Firebase Analytics (only if you opted in): user-level data retained for the default 14-month window configured on our Firebase project; aggregated reporting data retained indefinitely. Revoking consent or uninstalling stops further collection; existing uploaded events can be deleted on request (see §6).</li>
+        <li>Facebook App Events (only if you opted in): retained per Meta's default app-events retention policy. Revoking consent or uninstalling stops further collection; existing data can be deleted on request (see §6).</li>
         <li>Support correspondence: if you email us at <a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a>, we keep the email thread for up to 24 months, then delete it.</li>
       </ul>
 
@@ -241,7 +254,7 @@
       <p>This section mirrors what a developer or auditor would see in the codebase, so that nothing in the App is undisclosed.</p>
       <ul>
         <li>Platform: Flutter (Dart <code>^3.11.3</code>), distributed globally on the Apple App Store and Google Play; package name / bundle identifier <code>app.nopanic</code>.</li>
-        <li>Third-party packages used that may touch the network or OS storage: <code>purchases_flutter</code> (RevenueCat), <code>firebase_core</code> + <code>firebase_analytics</code> (Firebase Analytics — gated on opt-in consent), <code>app_tracking_transparency</code> (iOS only — shows the system ATT prompt when analytics is opted in, as described in §3.4), <code>google_fonts</code> (runtime font fetch), <code>just_audio</code> + <code>audio_service</code> + <code>audio_session</code> (local audio playback, including background playback and lock-screen / Control Center / Notification controls for the Sleep exercise via a custom <code>AudioHandler</code>; other exercises use plain <code>just_audio</code> only), <code>shared_preferences</code> (local key-value storage, including the <code>analytics_consent</code> flag), <code>sqflite</code> (local SQLite), <code>url_launcher</code> (opens external URLs in the system browser when you tap Terms, Privacy, or Support), <code>package_info_plus</code> (reads local app version/build number).</li>
+        <li>Third-party packages used that may touch the network or OS storage: <code>purchases_flutter</code> (RevenueCat), <code>firebase_core</code> + <code>firebase_analytics</code> (Firebase Analytics — gated on opt-in consent), <code>facebook_app_events</code> (Meta Facebook App Events — gated on opt-in consent and, on iOS, on ATT being <code>authorized</code>, as described in §3.5), <code>app_tracking_transparency</code> (iOS only — shows the system ATT prompt when analytics is opted in, as described in §3.4 and §3.5), <code>google_fonts</code> (runtime font fetch), <code>just_audio</code> + <code>audio_service</code> + <code>audio_session</code> (local audio playback, including background playback and lock-screen / Control Center / Notification controls for the Sleep exercise via a custom <code>AudioHandler</code>; other exercises use plain <code>just_audio</code> only), <code>shared_preferences</code> (local key-value storage, including the <code>analytics_consent</code> flag), <code>sqflite</code> (local SQLite), <code>url_launcher</code> (opens external URLs in the system browser when you tap Terms, Privacy, or Support), <code>package_info_plus</code> (reads local app version/build number).</li>
         <li>External URLs opened (only when you tap them): the Terms URL, the Privacy URL, and the Support email's <code>mailto:</code> link.</li>
         <li>API keys: a RevenueCat public SDK key is compiled into the build via <code>--dart-define</code>. Firebase configuration (<code>GoogleService-Info.plist</code> / <code>google-services.json</code>) is bundled at build time. These keys identify the app, not you.</li>
         <li>No backend owned by the Publisher processes user data at the time of writing; analytics data is processed by Google on our behalf only after explicit consent.</li>
@@ -252,7 +265,7 @@
       <ol>
         <li>Inside the App: open <strong>Journaling</strong>, delete entries individually. In the <strong>Medication Tracker</strong>, delete medications and dose-history entries individually.</li>
         <li>Uninstall the App, or use your device's "Clear data" (Android) / "Offload App + Delete" (iOS) action. This removes all on-device App data, including Journal entries, affirmation favorites, onboarding flag, the Pro entitlement cache, the <code>analytics_consent</code> flag, and the Firebase Instance ID.</li>
-        <li>To stop ongoing analytics collection, open Settings → Privacy and disable the Analytics toggle. To also delete previously uploaded analytics events, email <strong><a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a></strong> and we will initiate a deletion request against the Firebase project.</li>
+        <li>To stop ongoing analytics collection, open Settings → Privacy and disable the Analytics toggle. To also delete previously uploaded analytics events, email <strong><a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a></strong> and we will initiate a deletion request against the Firebase project and the Meta app-events dataset.</li>
         <li>To cancel or delete subscription data held by Apple, Google, or RevenueCat, use the subscription management tools in your App Store or Google Play account, or email <strong><a href="mailto:denysdubov88@gmail.com">denysdubov88@gmail.com</a></strong> for assistance.</li>
       </ol>
 
